@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRU B.Tech CSE Timetable | Batch 23CSBTB43</title>
+    <meta name="description" content="Modern, interactive timetable dashboard for SR University BTECH-CSE (AIML) Fourth Year - Batch 23CSBTB43">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Remix Icons / Lucide Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-mesh">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <i class="ri-calendar-schedule-fill"></i>
+                </div>
+                <div class="brand-info">
+                    <div class="badge-row">
+                        <span class="badge badge-primary">SR UNIVERSITY</span>
+                        <span class="badge badge-accent">AC YEAR 2026-27</span>
+                        <span class="badge badge-glow">SEM 1 (4th Year)</span>
+                    </div>
+                    <h1 class="brand-title">BTECH-CSE <span class="highlight">(AIML)</span></h1>
+                </div>
+            </div>
+
+            <div class="header-meta">
+                <div class="student-pill">
+                    <div class="pill-avatar"><i class="ri-user-line"></i></div>
+                    <div class="pill-details">
+                        <span class="pill-label">Batch ID</span>
+                        <span class="pill-value">23CSBTB43</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-icon" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                        <i class="ri-moon-clear-line" id="themeIcon"></i>
+                    </button>
+                    <button class="btn btn-secondary" id="exportIcsBtn" title="Export schedule to Google / Apple Calendar">
+                        <i class="ri-calendar-event-line"></i>
+                        <span>Export .ICS</span>
+                    </button>
+                    <button class="btn btn-primary" id="printBtn" title="Print or Save PDF">
+                        <i class="ri-printer-line"></i>
+                        <span>Print / PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Live Status Hero Banner -->
+        <section class="hero-status-card" id="statusHero">
+            <div class="hero-clock-col">
+                <div class="live-pulse-wrapper">
+                    <span class="live-dot"></span>
+                    <span class="live-tag">LIVE CAMPUS CLOCK</span>
+                </div>
+                <div class="hero-digital-time" id="liveTime">00:00:00</div>
+                <div class="hero-date-badge" id="liveDate">Loading date...</div>
+            </div>
+
+            <div class="hero-divider"></div>
+
+            <div class="hero-active-col" id="liveClassStatus">
+                <div class="status-indicator-title" id="statusHeading">
+                    <i class="ri-hourglass-2-line"></i> Checking Schedule...
+                </div>
+                <div class="active-class-box" id="activeClassBox">
+                    <div class="class-title-row">
+                        <h2 class="active-class-title" id="activeClassName">—</h2>
+                        <span class="type-pill" id="activeClassType">—</span>
+                    </div>
+                    <div class="class-meta-row" id="activeClassMeta">
+                        <span><i class="ri-map-pin-2-line"></i> <strong id="activeClassRoom">—</strong></span>
+                        <span><i class="ri-user-voice-line"></i> <strong id="activeClassFaculty">—</strong></span>
+                        <span><i class="ri-time-line"></i> <strong id="activeClassTime">—</strong></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Control Bar (Tabs & Filters) -->
+        <section class="controls-panel">
+            <div class="view-tabs">
+                <button class="tab-btn active" data-view="weekly-grid">
+                    <i class="ri-layout-grid-line"></i>
+                    <span>Weekly Matrix</span>
+                </button>
+                <button class="tab-btn" data-view="daily-agenda">
+                    <i class="ri-list-check-2"></i>
+                    <span>Day Agenda</span>
+                </button>
+                <button class="tab-btn" data-view="subjects-catalog">
+                    <i class="ri-book-open-line"></i>
+                    <span>Course Catalog</span>
+                </button>
+                <button class="tab-btn" data-view="campus-guide">
+                    <i class="ri-compass-3-line"></i>
+                    <span>Room & Block Guide</span>
+                </button>
+            </div>
+
+            <div class="search-filter-wrapper">
+                <div class="search-box">
+                    <i class="ri-search-line"></i>
+                    <input type="text" id="searchInput" placeholder="Search subject, faculty, room..." autocomplete="off">
+                    <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 1: Weekly Matrix Table -->
+        <section class="view-section active" id="viewWeeklyGrid">
+            <div class="card glass-card timetable-wrapper">
+                <div class="card-header-row">
+                    <div class="title-with-desc">
+                        <h3><i class="ri-calendar-2-line"></i> Master Weekly Schedule</h3>
+                        <p>Detailed view of all lecture (1 hr) and laboratory (2 hrs) periods</p>
+                    </div>
+                    <div class="legend-bar">
+                        <span class="legend-item"><span class="legend-dot dot-lecture"></span> Lecture (1 hr)</span>
+                        <span class="legend-item"><span class="legend-dot dot-lab"></span> Lab (2 hrs)</span>
+                        <span class="legend-item"><span class="legend-dot dot-lunch"></span> Break</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive-container">
+                    <table class="modern-timetable" id="weeklyMatrixTable">
+                        <thead>
+                            <tr>
+                                <th class="col-time"><i class="ri-time-line"></i> Time</th>
+                                <th class="col-day" data-day="Monday">Monday</th>
+                                <th class="col-day" data-day="Tuesday">Tuesday</th>
+                                <th class="col-day" data-day="Wednesday">Wednesday</th>
+                                <th class="col-day" data-day="Thursday">Thursday</th>
+                                <th class="col-day" data-day="Friday">Friday</th>
+                                <th class="col-day col-weekend" data-day="Saturday">Sat / Sun</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixTableBody">
+                            <!-- Injected dynamically via app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: Daily Agenda Cards -->
+        <section class="view-section" id="viewDailyAgenda">
+            <div class="day-selector-bar" id="daySelectorBar">
+                <button class="day-chip" data-day="Monday">Monday <span class="badge-count">2</span></button>
+                <button class="day-chip" data-day="Tuesday">Tuesday <span class="badge-count">2</span></button>
+                <button class="day-chip" data-day="Wednesday">Wednesday <span class="badge-count">2</span></button>
+                <button class="day-chip" data-day="Thursday">Thursday <span class="badge-count">2</span></button>
+                <button class="day-chip" data-day="Friday">Friday <span class="badge-count">3</span></button>
+                <button class="day-chip" data-day="Weekend">Sat & Sun <span class="badge-count">0</span></button>
+            </div>
+
+            <div class="agenda-container" id="agendaCardsContainer">
+                <!-- Injected dynamically via app.js -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: Course Catalog -->
+        <section class="view-section" id="viewSubjectsCatalog">
+            <div class="catalog-grid" id="courseCatalogGrid">
+                <!-- Course Cards injected dynamically -->
+            </div>
+        </section>
+
+        <!-- VIEW 4: Campus Room & Block Guide -->
+        <section class="view-section" id="viewCampusGuide">
+            <div class="guide-grid">
+                <div class="card glass-card">
+                    <div class="guide-header">
+                        <div class="guide-icon bg-indigo"><i class="ri-building-4-line"></i></div>
+                        <div>
+                            <h4>Block 3 (BL3) - Second Floor (SF)</h4>
+                            <p>Computer Science & Engineering Core Labs & Classrooms</p>
+                        </div>
+                    </div>
+                    <ul class="room-list">
+                        <li>
+                            <span class="room-tag">Room 3207</span>
+                            <div class="room-meta">
+                                <strong>PE4 - Security, Ethics & Regulations in AI</strong>
+                                <span>Lecture & Lab Sessions</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="room-tag">Room 3216</span>
+                            <div class="room-meta">
+                                <strong>PE3 - Compiler Design</strong>
+                                <span>Lecture Sessions</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="room-tag">Room 3218</span>
+                            <div class="room-meta">
+                                <strong>PE2 - Augmented & Virtual Reality (L/P) + PE3 Lab</strong>
+                                <span>AR/VR Systems & Systems Lab</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card glass-card">
+                    <div class="guide-header">
+                        <div class="guide-icon bg-amber"><i class="ri-cpu-line"></i></div>
+                        <div>
+                            <h4>Block 8 (BL8) & Block 11 (BL11)</h4>
+                            <p>Advanced AI Computing & First Floor Labs</p>
+                        </div>
+                    </div>
+                    <ul class="room-list">
+                        <li>
+                            <span class="room-tag">Room 8104 (BL8-FF)</span>
+                            <div class="room-meta">
+                                <strong>SE2 - Agentic AI (Lab)</strong>
+                                <span>Block 8 First Floor - High Performance AI Lab</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="room-tag">Room 11101 (BL11-FF)</span>
+                            <div class="room-meta">
+                                <strong>SE2 - Agentic AI (Lecture)</strong>
+                                <span>Block 11 First Floor - Theory Lecture Hall</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Quick Notes / Task Section -->
+        <section class="notes-panel glass-card">
+            <div class="notes-header">
+                <div class="notes-title">
+                    <i class="ri-sticky-note-line"></i>
+                    <div>
+                        <h4>Quick Student Notepad & Reminders</h4>
+                        <p>Keep track of assignment deadlines, lab submissions, and capstone milestones (auto-saved locally)</p>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-secondary" id="clearNotesBtn">Clear Notes</button>
+            </div>
+            <textarea id="studentNotes" placeholder="Example:
+- Capstone Project literature survey submission due Friday.
+- Compiler Design parser lab exercise preparation.
+- VR headset setup test in Room 3218."></textarea>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <p>SR UNIVERSITY &bull; School of Computer Science and Artificial Intelligence &bull; Batch 2023-27</p>
+            <p class="footer-sub">Interactive Timetable Portal &bull; Designed for 23CSBTB43</p>
+        </div>
+    </footer>
+
+    <!-- Class Details Modal -->
+    <div class="modal-overlay" id="classModal">
+        <div class="modal-card">
+            <button class="modal-close" id="modalCloseBtn"><i class="ri-close-line"></i></button>
+            <div class="modal-banner" id="modalBanner">
+                <span class="modal-code" id="modalCourseCode">COURSE CODE</span>
+                <h2 class="modal-title" id="modalTitle">Subject Name</h2>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info-grid">
+                    <div class="info-item">
+                        <span class="info-label"><i class="ri-calendar-line"></i> Day & Time</span>
+                        <span class="info-val" id="modalDateTime">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="ri-shape-line"></i> Session Type</span>
+                        <span class="info-val" id="modalType">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="ri-map-pin-line"></i> Room / Location</span>
+                        <span class="info-val" id="modalRoom">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label"><i class="ri-user-star-line"></i> Faculty In-charge</span>
+                        <span class="info-val" id="modalFaculty">—</span>
+                    </div>
+                </div>
+                <div class="modal-desc" id="modalDesc">
+                    <!-- Subject overview -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary w-100" id="modalCloseAction">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="app.js"></script>
+</body>
+</html>
