@@ -726,13 +726,19 @@ function initEventHandlers() {
         if (e.target.id === 'classModal') closeModal();
     });
 
-    // Print
-    document.getElementById('printBtn').addEventListener('click', () => {
-        window.print();
-    });
+    // Print (if button exists)
+    const printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+    }
 
-    // Export .ICS Calendar
-    document.getElementById('exportIcsBtn').addEventListener('click', exportIcsCalendar);
+    // Export .ICS Calendar (if button exists)
+    const exportIcsBtn = document.getElementById('exportIcsBtn');
+    if (exportIcsBtn) {
+        exportIcsBtn.addEventListener('click', exportIcsCalendar);
+    }
 
     // Notes auto-save
     const notesBox = document.getElementById('studentNotes');
