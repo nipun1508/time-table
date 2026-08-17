@@ -111,6 +111,17 @@ const SCHEDULE = [
     {
         id: 'tue-2',
         day: 'Tuesday',
+        startTime: '10:30',
+        endTime: '11:30',
+        duration: '1 Hour',
+        courseKey: 'SE2',
+        type: 'Lecture',
+        room: '10003-BL10-GF',
+        faculty: 'Dr. Balajee Maram'
+    },
+    {
+        id: 'tue-3',
+        day: 'Tuesday',
         startTime: '15:30',
         endTime: '17:30',
         duration: '2 Hours',
@@ -188,7 +199,7 @@ const SCHEDULE = [
         duration: '1 Hour',
         courseKey: 'PE4',
         type: 'Lecture',
-        room: '3207-BL3-SF',
+        room: '3208-BL3-SF',
         faculty: 'Mr. Nagendar Yamsani'
     },
     {
@@ -205,15 +216,47 @@ const SCHEDULE = [
 ];
 
 // Time Slot rows for Matrix View
-const TIME_SLOTS = [
-    { label: '09:30 - 10:30', start: '09:30', end: '10:30' },
-    { label: '10:30 - 11:30', start: '10:30', end: '11:30' },
-    { label: '11:30 - 12:30', start: '11:30', end: '12:30' },
-    { label: '12:30 - 13:30', start: '12:30', end: '13:30', isLunch: true },
-    { label: '13:30 - 14:30', start: '13:30', end: '14:30' },
-    { label: '14:30 - 15:30', start: '14:30', end: '15:30' },
-    { label: '15:30 - 16:30', start: '15:30', end: '16:30' },
-    { label: '16:30 - 17:30', start: '16:30', end: '17:30' }
+const TIME_SLOTS = [{
+        label: '09:30 - 10:30',
+        start: '09:30',
+        end: '10:30'
+    },
+    {
+        label: '10:30 - 11:30',
+        start: '10:30',
+        end: '11:30'
+    },
+    {
+        label: '11:30 - 12:30',
+        start: '11:30',
+        end: '12:30'
+    },
+    {
+        label: '12:30 - 13:30',
+        start: '12:30',
+        end: '13:30',
+        isLunch: true
+    },
+    {
+        label: '13:30 - 14:30',
+        start: '13:30',
+        end: '14:30'
+    },
+    {
+        label: '14:30 - 15:30',
+        start: '14:30',
+        end: '15:30'
+    },
+    {
+        label: '15:30 - 16:30',
+        start: '15:30',
+        end: '16:30'
+    },
+    {
+        label: '16:30 - 17:30',
+        start: '16:30',
+        end: '17:30'
+    }
 ];
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -223,7 +266,9 @@ let currentSelectedDay = getInitialDay();
 let searchQuery = '';
 
 function getInitialDay() {
-    const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayName = new Date().toLocaleDateString('en-US', {
+        weekday: 'long'
+    });
     return DAYS.includes(todayName) ? todayName : 'Monday';
 }
 
@@ -236,7 +281,28 @@ document.addEventListener('DOMContentLoaded', () => {
     initClockAndLiveStatus();
     initEventHandlers();
     loadStudentNotes();
+
+    // On mobile devices (<=768px), default to the Day Agenda view for better mobile UX
+    if (window.innerWidth <= 768) {
+        switchToView('daily-agenda');
+    }
 });
+
+function switchToView(viewName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.getAttribute('data-view') === viewName) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+    if (viewName === 'weekly-grid') document.getElementById('viewWeeklyGrid').classList.add('active');
+    if (viewName === 'daily-agenda') document.getElementById('viewDailyAgenda').classList.add('active');
+    if (viewName === 'subjects-catalog') document.getElementById('viewSubjectsCatalog').classList.add('active');
+    if (viewName === 'campus-guide') document.getElementById('viewCampusGuide').classList.add('active');
+}
 
 // Theme Management
 function initTheme() {
@@ -258,7 +324,9 @@ function renderWeeklyMatrix() {
     if (!tbody) return;
 
     let html = '';
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const today = new Date().toLocaleDateString('en-US', {
+        weekday: 'long'
+    });
 
     // Highlight today's column header
     document.querySelectorAll('.modern-timetable th.col-day').forEach(th => {
@@ -302,7 +370,7 @@ function renderWeeklyMatrix() {
             if (session) {
                 const course = COURSES[session.courseKey];
                 const isSecondHour = (session.duration === '2 Hours' && session.startTime !== slot.start);
-                
+
                 if (isSecondHour) {
                     html += `
                         <td class="${day === today ? 'today-cell' : ''}">
@@ -483,8 +551,15 @@ function renderCourseCatalog() {
 function initClockAndLiveStatus() {
     function updateClock() {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
-        const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('en-US', {
+            hour12: false
+        });
+        const dateStr = now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
 
         const timeElem = document.getElementById('liveTime');
         const dateElem = document.getElementById('liveDate');
@@ -499,7 +574,9 @@ function initClockAndLiveStatus() {
 }
 
 function evaluateLiveStatus(now) {
-    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+    const currentDay = now.toLocaleDateString('en-US', {
+        weekday: 'long'
+    });
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     const heading = document.getElementById('statusHeading');
@@ -612,16 +689,8 @@ function initEventHandlers() {
     // View Switching Tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
             const view = btn.getAttribute('data-view');
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-
-            if (view === 'weekly-grid') document.getElementById('viewWeeklyGrid').classList.add('active');
-            if (view === 'daily-agenda') document.getElementById('viewDailyAgenda').classList.add('active');
-            if (view === 'subjects-catalog') document.getElementById('viewSubjectsCatalog').classList.add('active');
-            if (view === 'campus-guide') document.getElementById('viewCampusGuide').classList.add('active');
+            switchToView(view);
         });
     });
 
@@ -689,8 +758,14 @@ function loadStudentNotes() {
 
 // 7. ICS Calendar Generator (RFC 5545)
 function exportIcsCalendar() {
-    const dayMap = { 'Monday': 'MO', 'Tuesday': 'TU', 'Wednesday': 'WE', 'Thursday': 'TH', 'Friday': 'FR' };
-    
+    const dayMap = {
+        'Monday': 'MO',
+        'Tuesday': 'TU',
+        'Wednesday': 'WE',
+        'Thursday': 'TH',
+        'Friday': 'FR'
+    };
+
     let icsContent = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
@@ -708,7 +783,13 @@ function exportIcsCalendar() {
         const [eh, em] = session.endTime.split(':');
 
         // Reference start date: 2026-08-17 (Monday)
-        const dayOffsets = { 'Monday': 17, 'Tuesday': 18, 'Wednesday': 19, 'Thursday': 20, 'Friday': 21 };
+        const dayOffsets = {
+            'Monday': 17,
+            'Tuesday': 18,
+            'Wednesday': 19,
+            'Thursday': 20,
+            'Friday': 21
+        };
         const dayDate = dayOffsets[session.day];
 
         const dtStart = `202608${dayDate}T${sh}${sm}00`;
@@ -731,7 +812,9 @@ function exportIcsCalendar() {
 
     icsContent.push('END:VCALENDAR');
 
-    const blob = new Blob([icsContent.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const blob = new Blob([icsContent.join('\r\n')], {
+        type: 'text/calendar;charset=utf-8'
+    });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
     link.setAttribute('download', 'SRU_Timetable_23CSBTB43.ics');

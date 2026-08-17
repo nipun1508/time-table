@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRU B.Tech CSE Timetable | Batch 23CSBTB43</title>
     <meta name="description" content="Modern, interactive timetable dashboard for SR University BTECH-CSE (AIML) Fourth Year - Batch 23CSBTB43">
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
+
     <!-- Remix Icons / Lucide Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
-    
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="background-mesh">
         <div class="blob blob-1"></div>
@@ -170,7 +172,7 @@
         <section class="view-section" id="viewDailyAgenda">
             <div class="day-selector-bar" id="daySelectorBar">
                 <button class="day-chip" data-day="Monday">Monday <span class="badge-count">2</span></button>
-                <button class="day-chip" data-day="Tuesday">Tuesday <span class="badge-count">2</span></button>
+                <button class="day-chip" data-day="Tuesday">Tuesday <span class="badge-count">3</span></button>
                 <button class="day-chip" data-day="Wednesday">Wednesday <span class="badge-count">2</span></button>
                 <button class="day-chip" data-day="Thursday">Thursday <span class="badge-count">2</span></button>
                 <button class="day-chip" data-day="Friday">Friday <span class="badge-count">3</span></button>
@@ -202,10 +204,10 @@
                     </div>
                     <ul class="room-list">
                         <li>
-                            <span class="room-tag">Room 3207</span>
+                            <span class="room-tag">Room 3207 / 3208</span>
                             <div class="room-meta">
                                 <strong>PE4 - Security, Ethics & Regulations in AI</strong>
-                                <span>Lecture & Lab Sessions</span>
+                                <span>Lecture (3207/3208) & Lab Sessions (3207)</span>
                             </div>
                         </li>
                         <li>
@@ -229,23 +231,30 @@
                     <div class="guide-header">
                         <div class="guide-icon bg-amber"><i class="ri-cpu-line"></i></div>
                         <div>
-                            <h4>Block 8 (BL8) & Block 11 (BL11)</h4>
-                            <p>Advanced AI Computing & First Floor Labs</p>
+                            <h4>Block 8 (BL8), Block 10 (BL10) & Block 11 (BL11)</h4>
+                            <p>Advanced AI Computing & Theory Lecture Halls</p>
                         </div>
                     </div>
                     <ul class="room-list">
                         <li>
-                            <span class="room-tag">Room 8104 (BL8-FF)</span>
+                            <span class="room-tag">Room 10003 (BL10-GF)</span>
                             <div class="room-meta">
-                                <strong>SE2 - Agentic AI (Lab)</strong>
-                                <span>Block 8 First Floor - High Performance AI Lab</span>
+                                <strong>SE2 - Agentic AI (Lecture - Tuesday)</strong>
+                                <span>Block 10 Ground Floor</span>
                             </div>
                         </li>
                         <li>
                             <span class="room-tag">Room 11101 (BL11-FF)</span>
                             <div class="room-meta">
-                                <strong>SE2 - Agentic AI (Lecture)</strong>
+                                <strong>SE2 - Agentic AI (Lecture - Monday)</strong>
                                 <span>Block 11 First Floor - Theory Lecture Hall</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="room-tag">Room 8104 (BL8-FF)</span>
+                            <div class="room-meta">
+                                <strong>SE2 - Agentic AI (Lab - Thursday)</strong>
+                                <span>Block 8 First Floor - High Performance AI Lab</span>
                             </div>
                         </li>
                     </ul>
@@ -320,4 +329,5 @@
     <!-- Script -->
     <script src="app.js"></script>
 </body>
+
 </html>
