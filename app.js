@@ -37,7 +37,7 @@ const COURSES = {
         shortName: 'AR / VR Systems',
         facultyLecture: 'Mr. Sripelli Jagadish',
         facultyLab: 'Mr. Sripelli Jagadish',
-        room: '3218-BL3-SF',
+        room: '11206-BL11-SF',
         cssClass: 'subject-pe2',
         type: 'Elective 2',
         credits: '3 Credits (2L + 2P)',
@@ -81,7 +81,7 @@ const SCHEDULE = [
         duration: '1 Hour',
         courseKey: 'PE2',
         type: 'Lecture',
-        room: '3218-BL3-SF',
+        room: '11206-BL11-SF',
         faculty: 'Mr. Sripelli Jagadish'
     },
     {
@@ -140,7 +140,7 @@ const SCHEDULE = [
         duration: '2 Hours',
         courseKey: 'PE2',
         type: 'Lab',
-        room: '3218-BL3-SF',
+        room: '11206-BL11-SF',
         faculty: 'Mr. Sripelli Jagadish'
     },
     {
@@ -188,7 +188,7 @@ const SCHEDULE = [
         duration: '1 Hour',
         courseKey: 'PE2',
         type: 'Lecture',
-        room: '3218-BL3-SF',
+        room: '11206-BL11-SF',
         faculty: 'Mr. Sripelli Jagadish'
     },
     {
@@ -275,12 +275,14 @@ function getInitialDay() {
 // DOM Elements
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
+    init3dBackground();
     renderWeeklyMatrix();
     renderDailyAgenda(currentSelectedDay);
     renderCourseCatalog();
     initClockAndLiveStatus();
     initEventHandlers();
     loadStudentNotes();
+    init3dTiltEngine();
 
     // On mobile devices (<=768px), default to the Day Agenda view for better mobile UX
     if (window.innerWidth <= 768) {
@@ -306,7 +308,12 @@ function switchToView(viewName) {
 
 // Theme Management
 function initTheme() {
-    const savedTheme = localStorage.getItem('sru_tt_theme') || 'dark';
+    let savedTheme = 'dark';
+    try {
+        savedTheme = localStorage.getItem('sru_tt_theme') || 'dark';
+    } catch (e) {
+        console.warn('Storage access restricted:', e);
+    }
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
 }
@@ -415,6 +422,7 @@ function renderWeeklyMatrix() {
     });
 
     tbody.innerHTML = html;
+    setTimeout(init3dTiltEngine, 50);
 }
 
 // 2. Daily Agenda Rendering
@@ -439,6 +447,7 @@ function renderDailyAgenda(dayName) {
                 <p>Use this time for Capstone Project research, AI labs practice, and project development.</p>
             </div>
         `;
+        setTimeout(init3dTiltEngine, 50);
         return;
     }
 
@@ -460,6 +469,7 @@ function renderDailyAgenda(dayName) {
                 <p>${searchQuery ? 'No matching classes for your search term.' : 'No scheduled classroom sessions on this day.'}</p>
             </div>
         `;
+        setTimeout(init3dTiltEngine, 50);
         return;
     }
 
@@ -496,6 +506,7 @@ function renderDailyAgenda(dayName) {
     });
 
     container.innerHTML = html;
+    setTimeout(init3dTiltEngine, 50);
 }
 
 // 3. Course Catalog Rendering
@@ -545,6 +556,7 @@ function renderCourseCatalog() {
     });
 
     grid.innerHTML = html;
+    setTimeout(init3dTiltEngine, 50);
 }
 
 // 4. Live Clock & Class Status Detector
@@ -742,23 +754,40 @@ function initEventHandlers() {
 
     // Notes auto-save
     const notesBox = document.getElementById('studentNotes');
-    notesBox.addEventListener('input', () => {
-        localStorage.setItem('sru_tt_notes', notesBox.value);
-    });
+    if (notesBox) {
+        notesBox.addEventListener('input', () => {
+            try {
+                localStorage.setItem('sru_tt_notes', notesBox.value);
+            } catch (e) {
+                console.warn('Storage unavailable:', e);
+            }
+        });
+    }
 
-    document.getElementById('clearNotesBtn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear your notes?')) {
-            notesBox.value = '';
-            localStorage.removeItem('sru_tt_notes');
-        }
-    });
+    const clearNotesBtn = document.getElementById('clearNotesBtn');
+    if (clearNotesBtn && notesBox) {
+        clearNotesBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear your notes?')) {
+                notesBox.value = '';
+                try {
+                    localStorage.removeItem('sru_tt_notes');
+                } catch (e) {
+                    console.warn('Storage unavailable:', e);
+                }
+            }
+        });
+    }
 }
 
 function loadStudentNotes() {
-    const saved = localStorage.getItem('sru_tt_notes');
-    if (saved) {
-        const notesBox = document.getElementById('studentNotes');
-        if (notesBox) notesBox.value = saved;
+    try {
+        const saved = localStorage.getItem('sru_tt_notes');
+        if (saved) {
+            const notesBox = document.getElementById('studentNotes');
+            if (notesBox) notesBox.value = saved;
+        }
+    } catch (e) {
+        console.warn('Storage unavailable:', e);
     }
 }
 
@@ -827,4 +856,231 @@ function exportIcsCalendar() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// 8. Three.js Interactive 3D WebGL Background Engine
+function init3dBackground() {
+    const canvas = document.getElementById('bg3dCanvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    try {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 40;
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Create 3D Floating Geometries across full scroll height
+        const geometries = [
+            new THREE.IcosahedronGeometry(1.2, 0),
+            new THREE.TetrahedronGeometry(1.4, 0),
+            new THREE.OctahedronGeometry(1.1, 0),
+            new THREE.TorusGeometry(1, 0.3, 8, 16)
+        ];
+
+        const colors = [0x6366f1, 0xec4899, 0x06b6d4, 0x10b981];
+        const nodesGroup = new THREE.Group();
+
+        const nodeCount = 60;
+        const nodes = [];
+
+        for (let i = 0; i < nodeCount; i++) {
+            const geom = geometries[Math.floor(Math.random() * geometries.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const material = new THREE.MeshPhongMaterial({
+                color: color,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.35,
+                shininess: 100
+            });
+
+            const mesh = new THREE.Mesh(geom, material);
+            mesh.position.x = (Math.random() - 0.5) * 80;
+            mesh.position.y = (Math.random() - 0.5) * 140; // Full vertical scroll height
+            mesh.position.z = (Math.random() - 0.5) * 50;
+
+            mesh.rotation.x = Math.random() * Math.PI;
+            mesh.rotation.y = Math.random() * Math.PI;
+
+            const scale = 0.6 + Math.random() * 0.9;
+            mesh.scale.set(scale, scale, scale);
+
+            nodes.push({
+                mesh: mesh,
+                rotSpeedX: (Math.random() - 0.5) * 0.015,
+                rotSpeedY: (Math.random() - 0.5) * 0.015,
+                floatSpeed: 0.005 + Math.random() * 0.008,
+                initialY: mesh.position.y
+            });
+
+            nodesGroup.add(mesh);
+        }
+
+        scene.add(nodesGroup);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x6366f1, 2.2, 120);
+        pointLight1.position.set(20, 20, 20);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xec4899, 2.2, 120);
+        pointLight2.position.set(-20, -40, 10);
+        scene.add(pointLight2);
+
+        // Particle Constellation Field Across Full Height
+        const particleCount = 200;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 90;
+            positions[i + 1] = (Math.random() - 0.5) * 160; // Spread vertically
+            positions[i + 2] = (Math.random() - 0.5) * 60;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0x818cf8,
+            size: 0.9,
+            transparent: true,
+            opacity: 0.55
+        });
+
+        const particleSystem = new THREE.Points(particlesGeometry, particleMaterial);
+        scene.add(particleSystem);
+
+        // Mouse & Scroll Parallax Interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetMouseX = 0;
+        let targetMouseY = 0;
+        let scrollY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        window.addEventListener('scroll', () => {
+            scrollY = window.scrollY || window.pageYOffset;
+        });
+
+        // Window Resize Listener
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation Loop
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smooth mouse interpolation
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
+            // Camera moves seamlessly with page scroll position
+            const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+            const scrollFraction = scrollY / maxScroll;
+            camera.position.x = mouseX * 4;
+            camera.position.y = (-mouseY * 3) - (scrollFraction * 60) + 30;
+            camera.lookAt(camera.position.x, camera.position.y, 0);
+
+            // Animate floating nodes
+            nodes.forEach((node, idx) => {
+                node.mesh.rotation.x += node.rotSpeedX;
+                node.mesh.rotation.y += node.rotSpeedY;
+                node.mesh.position.y = node.initialY + Math.sin(elapsedTime * node.floatSpeed * 2 + idx) * 1.8;
+            });
+
+            // Rotate particle constellation
+            particleSystem.rotation.y = elapsedTime * 0.03;
+            nodesGroup.rotation.y = elapsedTime * 0.015;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    } catch (err) {
+        console.warn('3D Canvas initialization failed, falling back to CSS mesh:', err);
+    }
+}
+
+// 9. Real-Time 3D Card Tilt Engine & Specular Glare Tracking
+function init3dTiltEngine() {
+    const cards = document.querySelectorAll('.glass-card, .hero-status-card, .agenda-card, .course-card, .cell-slot-card');
+
+    cards.forEach(card => {
+        if (card.dataset.tiltInit) return;
+        card.dataset.tiltInit = "true";
+
+        // Inject 3D glare overlay if missing
+        if (!card.querySelector('.card-3d-glare')) {
+            const glare = document.createElement('div');
+            glare.className = 'card-3d-glare';
+            card.appendChild(glare);
+        }
+
+        const glare = card.querySelector('.card-3d-glare');
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = -((y - centerY) / centerY) * 12; // tilt angle X
+            const rotateY = ((x - centerX) / centerX) * 12; // tilt angle Y
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(12px) scale3d(1.015, 1.015, 1.015)`;
+
+            if (glare) {
+                glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255, 255, 255, 0.22), transparent 70%)`;
+            }
+        });
+
+        // Touch support for mobile 3D tilt
+        card.addEventListener('touchmove', (e) => {
+            if (!e.touches || !e.touches[0]) return;
+            const touch = e.touches[0];
+            const rect = card.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = -((y - centerY) / centerY) * 8;
+            const rotateY = ((x - centerX) / centerX) * 8;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(8px) scale3d(1.01, 1.01, 1.01)`;
+
+            if (glare) {
+                glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255, 255, 255, 0.2), transparent 70%)`;
+            }
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
+        });
+    });
 }
